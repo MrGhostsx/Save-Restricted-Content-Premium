@@ -1,10 +1,10 @@
-# VJ Save Restricted Bot
+# MrGhostsx Save Restricted Bot
 
 *A Telegram Bot, Which can send you restricted content by it's post link with <b>login feature</b>*
 
 ---
 
-<b>Watch Video Tutorial - [Click Here](https://youtu.be/BFEvSX5vIMg)</b>
+<b>Watch Video Tutorial - [Click Here](#)</b>
 
 ---
 
@@ -14,7 +14,7 @@
 - `API_ID` : Your API ID From [Telegram Website](https://my.telegram.org)
 - `BOT_TOKEN` : Your Bot Token From [BotFather](https://telegram.me/BotFather)
 - `ADMINS` : Your Admin Id For Broadcasting Message
-- `DB_URI` : Your Mongodb Database Url From [Mongodb](https://mongodb.com) Watch [Video Tutorial](https://youtu.be/DAHRmFdw99o) ( Warning - Give Db uri in deploy server environment variable, don't give in repo )
+- `DB_URI` : Your Mongodb Database Url From [Mongodb](https://mongodb.com) Watch [Video Tutorial](#) ( Warning - Give Db uri in deploy server environment variable, don't give in repo )
 - `ERROR_MESSAGE` : Set True Or False, If You Want Error Message Then True Else False.
 
 ---
@@ -77,5 +77,5 @@ _note that space in between doesn't matter_
 
 ## Credits
 
-- <b>Thanks To [BipinKrish](https://github.com/bipinkrish) For Base Repo
-- Thanks To [Tech VJ](https://telegram.dog/Kingvj01) For Modify & Added Login Feature.</b>
+- <b>Thanks To [MrGhostsx](#) For Base Repo
+- Thanks To [Tech Shreyansh](https://telegram.dog/Tech_Shreyansh29) For Modify & Added Login Feature.</b>
