@@ -28,6 +28,15 @@
 - `/cancel` : Cancel Your Any Ongoing Task
 - `/broadcast` : Broadcast Message To User (Admin Only)
 
+```
+start - Check Bot Is Working Or Not
+help - Check How To Use Bot
+login - Login Your Telegram String Session
+logout - Logout Your Session
+cancel - Cancel Your Any Ongoing Task
+broadcast - Broadcast Message To User (Admin Only)
+```
+
 ---
 
 ## Usage
