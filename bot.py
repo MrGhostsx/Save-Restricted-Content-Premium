@@ -135,6 +135,18 @@ async def my_plan(client, message):
     else:
         await message.reply("You do not have an active plan. Contact admin To Buy Premium Subscription @SmartEdith_Bot")
 
+# Broadcast command (admin only)
+@bot.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
+async def broadcast(client, message):
+    if len(message.command) < 2:
+        await message.reply("Usage: /broadcast <message>")
+        return
+
+    broadcast_message = " ".join(message.command[1:])
+    await message.reply("Broadcasting message to all users...")
+    # Add your broadcast logic here
+    await message.reply("Broadcast completed!")
+
 # Check if user is approved or is the owner before processing any message
 @bot.on_message()
 async def check_user_approval(client, message):
@@ -145,14 +157,20 @@ async def check_user_approval(client, message):
     if user_id == str(OWNER_ID):
         await message.continue_propagation()
 
-    # Check if user is approved
+    # Allow approved users to use all commands except /broadcast, /approve, and /unapprove
     if is_user_approved(user_id, approved_users):
-        await message.continue_propagation()
+        if message.command and message.command[0] in ["broadcast", "approve", "unapprove"]:
+            await message.reply("This command is restricted to the owner only.")
+        else:
+            await message.continue_propagation()
     else:
         await message.reply("You are not approved to use this bot. Contact admin To Buy Premium Subscription @SmartEdith_Bot")
 
 # Run the bot
 bot.run()
+
+
+
 # Don't Remove Credit Tg - @Tech_Shreyansh29
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@techshreyansh
 # Ask Doubt on telegram @Tech_Shreyansh2
