@@ -34,6 +34,12 @@ def is_user_approved(user_id, approved_users):
         return datetime.now() < expiry_date
     return False
 
+# Calculate remaining days for a user
+def calculate_remaining_days(expiry_date_str):
+    expiry_date = datetime.strptime(expiry_date_str, '%Y-%m-%d %H:%M:%S')
+    time_left = expiry_date - datetime.now()
+    return time_left.days
+
 class Bot(Client):
 
     def __init__(self):
@@ -135,6 +141,26 @@ async def my_plan(client, message):
     else:
         await message.reply("You do not have an active plan. Contact admin To Buy Premium Subscription @SmartEdith_Bot")
 
+# Command to list all approved users (owner/admin only)
+@bot.on_message(filters.command("approvedusers") & filters.user(OWNER_ID))
+async def list_approved_users(client, message):
+    approved_users = load_approved_users()
+
+    if not approved_users:
+        await message.reply("No users are currently approved.")
+        return
+
+    response = "**Approved Users:**\n\n"
+    for user_id, details in approved_users.items():
+        expiry_date = details['expiry']
+        remaining_days = calculate_remaining_days(expiry_date)
+        response += f"👤 User ID: `{user_id}`\n"
+        response += f"⏳ Expiry Date: `{expiry_date}`\n"
+        response += f"⏰ Remaining Days: `{remaining_days}`\n\n"
+
+    response += f"\n**Total Approved Users:** `{len(approved_users)}`"
+    await message.reply(response)
+
 # Broadcast command (admin only)
 @bot.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
 async def broadcast(client, message):
@@ -159,7 +185,7 @@ async def check_user_approval(client, message):
 
     # Allow approved users to use all commands except /broadcast, /approve, and /unapprove
     if is_user_approved(user_id, approved_users):
-        if message.command and message.command[0] in ["broadcast", "approve", "unapprove"]:
+        if message.command and message.command[0] in ["broadcast", "approve", "unapprove", "approvedusers"]:
             await message.reply("This command is restricted to the owner only.")
         else:
             await message.continue_propagation()
@@ -168,7 +194,6 @@ async def check_user_approval(client, message):
 
 # Run the bot
 bot.run()
-
 
 
 # Don't Remove Credit Tg - @Tech_Shreyansh29
