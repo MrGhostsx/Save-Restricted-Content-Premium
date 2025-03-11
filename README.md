@@ -34,7 +34,10 @@ help - ❓ Help if you're new.
 login - 🔑 Get into the bot.  
 logout - 🚪 Get out of the bot.  
 cancel - 🚫 Cancel batch process.
+myplan - ☘️check my plan.
 broadcast - ⚙️ Broadcast Message To User (Admin Only)
+approve -  🤭Gaandu Back (Admin Only)
+unapprove - 🤓Gya Beta Tuu (Admin Only)
 ```
 
 ---
