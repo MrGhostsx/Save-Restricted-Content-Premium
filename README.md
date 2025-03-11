@@ -38,6 +38,7 @@ myplan - ☘️check my plan.
 broadcast - ⚙️ Broadcast Message To User (Admin Only)
 approve -  🤭Gaandu Back (Admin Only)
 unapprove - 🤓Gya Beta Tuu (Admin Only)
+approvedusers - 🧐All Approved Users (Admin Only)
 ```
 
 ---
