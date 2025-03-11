@@ -125,7 +125,7 @@ async def my_plan(client, message):
             plan_details = (
                 f"**Your Plan Details:**\n"
                 f"👤 Username: `{message.from_user.username}`\n"
-                f"🤖 Bot Name: `mrghostsx login`\n"
+                f"🤖 Bot Name: `@SmartEdith_Bot`\n"
                 f"⏳ Plan Expiry: `{expiry_date.strftime('%Y-%m-%d %H:%M:%S')}`\n"
                 f"⏰ Time Left: `{str(time_left).split('.')[0]}`"
             )
