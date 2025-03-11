@@ -29,13 +29,14 @@
 - `/broadcast` : Broadcast Message To User (Admin Only)
 
 ```
-start - 🚀 Start the bot.  
-help - ❓ Help if you're new.  
-login - 🔑 Get into the bot.  
-logout - 🚪 Get out of the bot.  
-cancel - 🚫 Cancel batch process.
-myplan - ☘️check my plan.
-broadcast - ⚙️ Broadcast Message To User (Admin Only)
+start - 🚀Start the bot.  
+help - ❓Help if you're new.  
+login - 🔑Get into the bot.  
+logout - 🚪Get out of the bot.  
+cancel - 🚫Cancel batch process.
+myplan - ☘️Check my Plan.
+planinfo - 💸Check Plan Price
+broadcast - ⚙️Broadcast Message To User (Admin Only)
 approve -  🤭Gaandu Back (Admin Only)
 unapprove - 🤓Gya Beta Tuu (Admin Only)
 approvedusers - 🧐All Approved Users (Admin Only)
