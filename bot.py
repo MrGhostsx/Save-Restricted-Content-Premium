@@ -14,12 +14,15 @@ APPROVED_USERS_FILE = "approved_users.json"
 # File to store all users
 ALL_USERS_FILE = "all_users.json"
 
-# Load approved users from file
+# Load approved users from file and remove expired users
 def load_approved_users():
     if os.path.exists(APPROVED_USERS_FILE):
         try:
             with open(APPROVED_USERS_FILE, 'r') as file:
-                return json.load(file)
+                approved_users = json.load(file)
+                # Remove expired users
+                approved_users = remove_expired_users(approved_users)
+                return approved_users
         except json.JSONDecodeError:
             return {}
     return {}
@@ -28,6 +31,24 @@ def load_approved_users():
 def save_approved_users(approved_users):
     with open(APPROVED_USERS_FILE, 'w') as file:
         json.dump(approved_users, file, indent=4)
+
+# Remove expired users from the approved users list
+def remove_expired_users(approved_users):
+    current_time = datetime.now()
+    expired_users = []
+
+    for user_id, details in approved_users.items():
+        expiry_date = datetime.strptime(details['expiry'], '%Y-%m-%d %H:%M:%S')
+        if current_time > expiry_date:
+            expired_users.append(user_id)
+
+    for user_id in expired_users:
+        del approved_users[user_id]
+
+    if expired_users:
+        save_approved_users(approved_users)
+
+    return approved_users
 
 # Load all users from file
 def load_all_users():
