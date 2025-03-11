@@ -200,6 +200,26 @@ async def list_approved_users(client, message):
     response += f"\n**Total Approved Users:** `{len(approved_users)}`"
     await message.reply(response)
 
+# Command to display plan information
+@bot.on_message(filters.command("planinfo"))
+async def plan_info(client, message):
+    plan_table = (
+        "**📊 Subscription Plans:**\n\n"
+        "```"
+        "+--------------+------------+\n"
+        "|  Duration    | Price (INR)|\n"
+        "+--------------+------------+\n"
+        "| 1 Day        | ₹20        |\n"
+        "| 1 Week       | ₹80        |\n"
+        "| 1 Month      | ₹250       |\n"
+        "| 3 Months     | ₹700       |\n"
+        "| 6 Months     | ₹1200      |\n"
+        "| 1 Year       | ₹2500      |\n"
+        "+--------------+------------+```\n\n"
+        "Contact admin to buy a plan: @Tech_Shreyansh29"
+    )
+    await message.reply(plan_table)
+
 # Broadcast command (admin only)
 @bot.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
 async def broadcast(client, message):
