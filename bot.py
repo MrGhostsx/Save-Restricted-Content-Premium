@@ -197,8 +197,7 @@ async def list_approved_users(client, message):
 async def plan_info(client, message):
     plan_table = (
         "**📊 Subscription Plans:**\n\n"
-        "
-"
+        "```"
         "+--------------+------------+\n"
         "|  Duration    | Price (INR)|\n"
         "+--------------+------------+\n"
@@ -208,8 +207,7 @@ async def plan_info(client, message):
         "| 3 Months     | ₹700       |\n"
         "| 6 Months     | ₹1200      |\n"
         "| 1 Year       | ₹2500      |\n"
-        "+--------------+------------+
-\n\n"
+        "+--------------+------------+```\n\n"
         "Contact admin to buy a plan: @Tech_Shreyansh29"
     )
     await message.reply(plan_table)
