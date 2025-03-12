@@ -1,36 +1,29 @@
-# Don't Remove Credit Tg - @Tech_Shreyansh29
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@techshreyansh
-# Ask Doubt on telegram @Tech_Shreyansh2
-
 from pyrogram import Client, filters
-from config import API_ID, API_HASH, BOT_TOKEN, OWNER_ID
+from config import API_ID, API_HASH, BOT_TOKEN, OWNER_ID, MONGO_URL
 from datetime import datetime, timedelta
-import json
+from pymongo import MongoClient
 import os
 
-# File to store approved users
-APPROVED_USERS_FILE = "approved_users.json"
+# Initialize MongoDB client
+mongo_client = MongoClient(MONGO_URL)
+db = mongo_client['bot_database']
+approved_users_collection = db['approved_users']
+all_users_collection = db['all_users']
 
-# File to store all users
-ALL_USERS_FILE = "all_users.json"
-
-# Load approved users from file and remove expired users
+# Load approved users from MongoDB and remove expired users
 def load_approved_users():
-    if os.path.exists(APPROVED_USERS_FILE):
-        try:
-            with open(APPROVED_USERS_FILE, 'r') as file:
-                approved_users = json.load(file)
-                # Remove expired users
-                approved_users = remove_expired_users(approved_users)
-                return approved_users
-        except json.JSONDecodeError:
-            return {}
-    return {}
+    approved_users = {}
+    for user in approved_users_collection.find():
+        user_id = user['user_id']
+        expiry = user['expiry']
+        approved_users[user_id] = {'expiry': expiry}
+    return remove_expired_users(approved_users)
 
-# Save approved users to file
+# Save approved users to MongoDB
 def save_approved_users(approved_users):
-    with open(APPROVED_USERS_FILE, 'w') as file:
-        json.dump(approved_users, file, indent=4)
+    approved_users_collection.delete_many({})
+    for user_id, details in approved_users.items():
+        approved_users_collection.insert_one({'user_id': user_id, 'expiry': details['expiry']})
 
 # Remove expired users from the approved users list
 def remove_expired_users(approved_users):
@@ -50,26 +43,25 @@ def remove_expired_users(approved_users):
 
     return approved_users
 
-# Load all users from file
+# Load all users from MongoDB
 def load_all_users():
-    if os.path.exists(ALL_USERS_FILE):
-        try:
-            with open(ALL_USERS_FILE, 'r') as file:
-                return json.load(file)
-        except json.JSONDecodeError:
-            return {}
-    return {}
+    all_users = {}
+    for user in all_users_collection.find():
+        user_id = user['user_id']
+        all_users[user_id] = True
+    return all_users
 
-# Save all users to file
+# Save all users to MongoDB
 def save_all_users(all_users):
-    with open(ALL_USERS_FILE, 'w') as file:
-        json.dump(all_users, file, indent=4)
+    all_users_collection.delete_many({})
+    for user_id in all_users:
+        all_users_collection.insert_one({'user_id': user_id})
 
 # Update all users when a user interacts with the bot
 def update_all_users(user_id):
     all_users = load_all_users()
     if str(user_id) not in all_users:
-        all_users[str(user_id)] = True  # Store the user ID
+        all_users[str(user_id)] = True
         save_all_users(all_users)
 
 # Check if user is approved
@@ -169,10 +161,10 @@ async def my_plan(client, message):
         if time_left.total_seconds() > 0:
             plan_details = (
                 f"**Your Plan Details:**\n"
-                f"👤 Username: `{message.from_user.username}`\n"
-                f"🤖 Bot Name: `@SmartEdith_Bot`\n"
-                f"⏳ Plan Expiry: `{expiry_date.strftime('%Y-%m-%d %H:%M:%S')}`\n"
-                f"⏰ Time Left: `{str(time_left).split('.')[0]}`"
+                f"👤 Username: {message.from_user.username}\n"
+                f"🤖 Bot Name: @SmartEdith_Bot\n"
+                f"⏳ Plan Expiry: {expiry_date.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                f"⏰ Time Left: {str(time_left).split('.')[0]}"
             )
             await message.reply(plan_details)
         else:
@@ -193,11 +185,11 @@ async def list_approved_users(client, message):
     for user_id, details in approved_users.items():
         expiry_date = details['expiry']
         remaining_days = (datetime.strptime(expiry_date, '%Y-%m-%d %H:%M:%S') - datetime.now()).days
-        response += f"👤 User ID: `{user_id}`\n"
-        response += f"⏳ Expiry Date: `{expiry_date}`\n"
-        response += f"⏰ Remaining Days: `{remaining_days}`\n\n"
+        response += f"👤 User ID: {user_id}\n"
+        response += f"⏳ Expiry Date: {expiry_date}\n"
+        response += f"⏰ Remaining Days: {remaining_days}\n\n"
 
-    response += f"\n**Total Approved Users:** `{len(approved_users)}`"
+    response += f"\n**Total Approved Users:** {len(approved_users)}"
     await message.reply(response)
 
 # Command to display plan information
@@ -205,7 +197,8 @@ async def list_approved_users(client, message):
 async def plan_info(client, message):
     plan_table = (
         "**📊 Subscription Plans:**\n\n"
-        "```"
+        "
+"
         "+--------------+------------+\n"
         "|  Duration    | Price (INR)|\n"
         "+--------------+------------+\n"
@@ -215,7 +208,8 @@ async def plan_info(client, message):
         "| 3 Months     | ₹700       |\n"
         "| 6 Months     | ₹1200      |\n"
         "| 1 Year       | ₹2500      |\n"
-        "+--------------+------------+```\n\n"
+        "+--------------+------------+
+\n\n"
         "Contact admin to buy a plan: @Tech_Shreyansh29"
     )
     await message.reply(plan_table)
