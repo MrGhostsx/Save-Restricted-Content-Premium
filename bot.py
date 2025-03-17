@@ -1,14 +1,21 @@
+# Don't Remove Credit Tg - @Tech_Shreyansh29
+# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@techshreyansh
+# Ask Doubt on telegram @Tech_Shreyansh2
+
 from pyrogram import Client, filters
 from config import API_ID, API_HASH, BOT_TOKEN, OWNER_ID, MONGO_URL
 from datetime import datetime, timedelta
 from pymongo import MongoClient
 import os
+import secrets
+import string
 
 # Initialize MongoDB client
 mongo_client = MongoClient(MONGO_URL)
 db = mongo_client['bot_database']
 approved_users_collection = db['approved_users']
 all_users_collection = db['all_users']
+redeem_codes_collection = db['redeem_codes']
 
 # Load approved users from MongoDB and remove expired users
 def load_approved_users():
@@ -129,7 +136,7 @@ async def approve_user(client, message):
     approved_users[user_id] = {'expiry': expiry_date.strftime('%Y-%m-%d %H:%M:%S')}
     save_approved_users(approved_users)
 
-    await message.reply(f"User {user_id} approved until {expiry_date.strftime('%Y-%m-%d %H:%M:%S')}.")
+    await message.reply(f"User `{user_id}` approved until `{expiry_date.strftime('%Y-%m-%d %H:%M:%S')}`.")
 
 # Command to unapprove a user
 @bot.on_message(filters.command("unapprove") & filters.user(OWNER_ID))
@@ -144,9 +151,9 @@ async def unapprove_user(client, message):
     if user_id in approved_users:
         del approved_users[user_id]
         save_approved_users(approved_users)
-        await message.reply(f"User {user_id} unapproved.")
+        await message.reply(f"User `{user_id}` unapproved.")
     else:
-        await message.reply(f"User {user_id} is not approved.")
+        await message.reply(f"User `{user_id}` is not approved.")
 
 # Command for users to check their plan details
 @bot.on_message(filters.command("myplan"))
@@ -161,10 +168,10 @@ async def my_plan(client, message):
         if time_left.total_seconds() > 0:
             plan_details = (
                 f"**Your Plan Details:**\n"
-                f"👤 Username: {message.from_user.username}\n"
-                f"🤖 Bot Name: @SmartEdith_Bot\n"
-                f"⏳ Plan Expiry: {expiry_date.strftime('%Y-%m-%d %H:%M:%S')}\n"
-                f"⏰ Time Left: {str(time_left).split('.')[0]}"
+                f"👤 Username: `{message.from_user.username}`\n"
+                f"🤖 Bot Name: `@SmartEdith_Bot`\n"
+                f"⏳ Plan Expiry: `{expiry_date.strftime('%Y-%m-%d %H:%M:%S')}`\n"
+                f"⏰ Time Left: `{str(time_left).split('.')[0]}`"
             )
             await message.reply(plan_details)
         else:
@@ -185,11 +192,11 @@ async def list_approved_users(client, message):
     for user_id, details in approved_users.items():
         expiry_date = details['expiry']
         remaining_days = (datetime.strptime(expiry_date, '%Y-%m-%d %H:%M:%S') - datetime.now()).days
-        response += f"👤 User ID: {user_id}\n"
-        response += f"⏳ Expiry Date: {expiry_date}\n"
-        response += f"⏰ Remaining Days: {remaining_days}\n\n"
+        response += f"👤 User ID: `{user_id}`\n"  # Click-to-copy user ID
+        response += f"⏳ Expiry Date: `{expiry_date}`\n"
+        response += f"⏰ Remaining Days: `{remaining_days}`\n\n"
 
-    response += f"\n**Total Approved Users:** {len(approved_users)}"
+    response += f"\n**Total Approved Users:** `{len(approved_users)}`"
     await message.reply(response)
 
 # Command to display plan information
@@ -212,6 +219,17 @@ async def plan_info(client, message):
     )
     await message.reply(plan_table)
 
+# Command to display terms and conditions
+@bot.on_message(filters.command("terms"))
+async def terms_and_conditions(client, message):
+    terms = (
+        "> 📜 **Terms and Conditions** 📜\n\n"
+        "✨ We are not responsible for user deeds, and we do not promote copyrighted content. If any user engages in such activities, it is solely their responsibility.\n"
+        "✨ Upon purchase, we do not guarantee the uptime, downtime, or the validity of the plan. __Authorization and banning of users are at our discretion; we reserve the right to ban or authorize users at any time.__\n"
+        "✨ Payment to us **__does not guarantee__** authorization for the batch command. All decisions regarding authorization are made at our discretion and mood.\n"
+    )
+    await message.reply(terms)
+
 # Broadcast command (admin only)
 @bot.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
 async def broadcast(client, message):
@@ -226,7 +244,7 @@ async def broadcast(client, message):
         await message.reply("No users to broadcast to.")
         return
 
-    await message.reply(f"Broadcasting message to {len(all_users)} users...")
+    await message.reply(f"Broadcasting message to `{len(all_users)}` users...")
 
     success_count = 0
     fail_count = 0
@@ -241,9 +259,86 @@ async def broadcast(client, message):
 
     await message.reply(
         f"Broadcast completed!\n"
-        f"✅ Success: {success_count}\n"
-        f"❌ Failed: {fail_count}"
+        f"✅ Success: `{success_count}`\n"
+        f"❌ Failed: `{fail_count}`"
     )
+
+# Command to generate multiple redeem codes (admin only)
+@bot.on_message(filters.command("generateredeem") & filters.user(OWNER_ID))
+async def generate_redeem_code(client, message):
+    if len(message.command) < 2:
+        await message.reply("Usage: /generateredeem <count>")
+        return
+
+    try:
+        count = int(message.command[1])
+        if count <= 0:
+            await message.reply("Count must be a positive integer.")
+            return
+    except ValueError:
+        await message.reply("Invalid count. Please provide a valid number.")
+        return
+
+    # Generate multiple redeem codes
+    alphabet = string.ascii_letters + string.digits
+    redeem_codes = []
+
+    for _ in range(count):
+        redeem_code = ''.join(secrets.choice(alphabet) for i in range(10))
+        redeem_codes.append(redeem_code)
+        redeem_codes_collection.insert_one({
+            'code': redeem_code,
+            'used_by': None,
+            'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        })
+
+    await message.reply(f"Generated `{count}` redeem codes:\n\n" + "\n".join([f"`{code}`" for code in redeem_codes]))
+
+# Command for users to redeem codes
+@bot.on_message(filters.command("redeem"))
+async def redeem_code(client, message):
+    user_id = str(message.from_user.id)
+
+    if len(message.command) < 2:
+        await message.reply("Usage: /redeem <code>")
+        return
+
+    code = message.command[1]
+
+    # Check if the code exists and is not used
+    redeem_code_data = redeem_codes_collection.find_one({'code': code, 'used_by': None})
+
+    if not redeem_code_data:
+        await message.reply("❌ Invalid or already used redeem code.")
+        return
+
+    # Mark the code as used by the user and delete it from MongoDB
+    redeem_codes_collection.delete_one({'code': code})
+
+    # Add the user to the approved users list with a 30-minute expiry
+    expiry_date = datetime.now() + timedelta(minutes=30)
+    approved_users = load_approved_users()
+    approved_users[user_id] = {'expiry': expiry_date.strftime('%Y-%m-%d %H:%M:%S')}
+    save_approved_users(approved_users)
+
+    await message.reply(f"✅ Redeem code `{code}` successfully applied! You can use the bot for 30 minutes.")
+
+# Command to list all redeem codes (admin only)
+@bot.on_message(filters.command("listredeem") & filters.user(OWNER_ID))
+async def list_redeem_codes(client, message):
+    # Find only unused redeem codes
+    redeem_codes = redeem_codes_collection.find({'used_by': None})
+
+    if not redeem_codes:
+        await message.reply("No unused redeem codes available.")
+        return
+
+    response = "**Unused Redeem Codes:**\n\n"
+    for code in redeem_codes:
+        response += f"🔑 Code: `{code['code']}`\n"  # Click-to-copy redeem code
+        response += f"🕒 Generated At: `{code['generated_at']}`\n\n"
+
+    await message.reply(response)
 
 # Check if user is approved or is the owner before processing any message
 @bot.on_message()
@@ -261,7 +356,7 @@ async def check_user_approval(client, message):
 
     # Allow approved users to use all commands except /broadcast, /approve, and /unapprove
     if is_user_approved(user_id, approved_users):
-        if message.command and message.command[0] in ["broadcast", "approve", "unapprove"]:
+        if message.command and message.command[0] in ["broadcast", "approve", "unapprove", "generateredeem"]:
             await message.reply("This command is restricted to the owner only.")
         else:
             await message.continue_propagation()
@@ -270,7 +365,6 @@ async def check_user_approval(client, message):
 
 # Run the bot
 bot.run()
-
 
 # Don't Remove Credit Tg - @Tech_Shreyansh29
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@techshreyansh
