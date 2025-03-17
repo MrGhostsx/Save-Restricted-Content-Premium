@@ -35,10 +35,14 @@ login - 🔑Get into the bot.
 logout - 🚪Get out of the bot.  
 cancel - 🚫Cancel batch process.
 myplan - ☘️Check my Plan.
-planinfo - 💸Check Plan Price
+planinfo - 💸Check Plan Price.
+redeem - 👿Redeem Code for 30 Minutes.
+terms - 🥺Terms and Conditions.
 broadcast - ⚙️Broadcast Message To User (Admin Only)
-approve -  🤭Gaandu Back (Admin Only)
+approve - 🤭Gaandu Back (Admin Only)
 unapprove - 🤓Gya Beta Tuu (Admin Only)
+generateredeem - 🤓Papa Jii Bol Tab Duga (Admin Only)
+listredeem - 🧐Pura Redeem Dikha Duu (Admin Only)
 approvedusers - 🧐All Approved Users (Admin Only)
 ```
 
