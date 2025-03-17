@@ -300,7 +300,7 @@ async def redeem_code(client, message):
     user_id = str(message.from_user.id)
 
     if len(message.command) < 2:
-        await message.reply("Usage: /redeem <code>")
+        await message.reply("Usage: /redeem code")
         return
 
     code = message.command[1]
