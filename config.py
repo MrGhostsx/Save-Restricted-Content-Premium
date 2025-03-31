@@ -17,6 +17,10 @@ ADMINS = int(os.environ.get("ADMINS", "1234569875"))
 # Your Owner / Admin Id For Broadcast 
 OWNER_ID = int(os.environ.get("OWNER_ID", "1234569875"))
 
+# New: Channel & Group Requirements (Optional)
+REQUIRED_CHANNEL = os.environ.get("REQUIRED_CHANNEL", "Tech_Shreyansh")  # e.g., "Tech_Shreyansh29"
+REQUIRED_GROUP = os.environ.get("REQUIRED_GROUP", "Tech_Shreyansh2")      # e.g., "Tech_Shreyansh2"
+
 # Your Mongodb Database Url
 # Warning - Give Db uri in deploy server environment variable, don't give in repo.
 DB_URI = os.environ.get("DB_URI", "") # Warning - Give Db uri in deploy server environment variable, don't give in repo.
