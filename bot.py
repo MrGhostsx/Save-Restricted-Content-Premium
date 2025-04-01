@@ -305,10 +305,10 @@ async def check_joined_callback(client, callback_query):
     
     if has_joined:
         save_verified_user(user_id)
-        await callback_query.answer("Verification successful! You can now use the bot.", show_alert=True)
+        await callback_query.answer("🍀 Verification successful! You can now use the bot.", show_alert=True)
         await callback_query.message.delete()
     else:
-        await callback_query.answer("Please join both channel and group first!", show_alert=True)
+        await callback_query.answer("⚠️ Please join both channel and group first!", show_alert=True)
 
 # Check if user is approved or is the owner before processing any message
 @bot.on_message()
