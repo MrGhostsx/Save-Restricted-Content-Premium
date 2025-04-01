@@ -73,6 +73,10 @@ def save_verified_user(user_id):
     if str(user_id) not in verified_users:
         verified_users_collection.insert_one({'user_id': str(user_id)})
 
+# Remove verified user if they leave channel/group
+def remove_verified_user(user_id):
+    verified_users_collection.delete_one({'user_id': str(user_id)})
+
 # Update all users when a user interacts with the bot
 def update_all_users(user_id):
     all_users = load_all_users()
@@ -295,11 +299,6 @@ async def broadcast(client, message):
 @bot.on_callback_query(filters.regex("^check_joined$"))
 async def check_joined_callback(client, callback_query):
     user_id = callback_query.from_user.id
-    verified_users = load_verified_users()
-    
-    if str(user_id) in verified_users:
-        await callback_query.answer("You're already verified!", show_alert=True)
-        return
     
     has_joined = await has_user_joined(client, user_id)
     
@@ -327,6 +326,7 @@ async def check_user_approval(client, message):
 
     # Check if user needs to join channel/group
     if CHANNEL_USERNAME or GROUP_USERNAME:
+        # First check if they're in verified users
         if user_id not in verified_users:
             join_message = "**⚠️ Access Restricted!**\n\n"
             join_message += "To use this bot, you must join our "
@@ -346,6 +346,20 @@ async def check_user_approval(client, message):
                 disable_web_page_preview=True
             )
             return
+        else:
+            # If they're in verified users, check if they're still members
+            has_joined = await has_user_joined(client, int(user_id))
+            if not has_joined:
+                remove_verified_user(user_id)
+                join_message = "**⚠️ Access Restricted!**\n\n"
+                join_message += "You left our channel/group. Please rejoin to continue using the bot."
+                
+                await message.reply(
+                    join_message,
+                    reply_markup=get_join_buttons(),
+                    disable_web_page_preview=True
+                )
+                return
 
     # Allow approved users to use all commands except /broadcast, /approve, and /unapprove
     if is_user_approved(user_id, approved_users):
