@@ -16,8 +16,8 @@
 - `ADMINS` : Your Admin Id For Broadcasting Message
 - `DB_URI` : Your Mongodb Database Url From [Mongodb](https://mongodb.com) Watch [Video Tutorial](#) ( Warning - Give Db uri in deploy server environment variable, don't give in repo )
 - `ERROR_MESSAGE` : Set True Or False, If You Want Error Message Then True Else False. 
-- `REQUIRED_CHANNEL` : Add Your Force Channel Username or Id.  (e.g., Tech_Shreyansh29)
-- `REQUIRED_GROUP` : Add your Force Group Username or Id.  (optional, leave empty if not needed)
+- `CHANNEL_USERNAME` : Add Your Force Channel Username or Id.  (e.g., Tech_Shreyansh29)
+- `GROUP_USERNAME` : Add your Force Group Username or Id.  (optional, leave empty if not needed)
 
 ---
 
