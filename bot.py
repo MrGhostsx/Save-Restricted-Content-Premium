@@ -4,6 +4,8 @@ from config import API_ID, API_HASH, BOT_TOKEN, OWNER_ID, MONGO_URL, CHANNEL_USE
 from datetime import datetime, timedelta
 from pymongo import MongoClient
 import os
+import secrets
+import string
 
 # Initialize MongoDB client
 mongo_client = MongoClient(MONGO_URL)
@@ -11,6 +13,7 @@ db = mongo_client['bot_database']
 approved_users_collection = db['approved_users']
 all_users_collection = db['all_users']
 verified_users_collection = db['verified_users']  # To track who has joined channel/group
+redeem_codes_collection = db['redeem_codes']  # To store redeem codes
 
 # Load approved users from MongoDB and remove expired users
 def load_approved_users():
@@ -295,6 +298,85 @@ async def broadcast(client, message):
         f"❌ Failed: {fail_count}"
     )
 
+# Command to generate redeem codes (admin only)
+@bot.on_message(filters.command("generateredeem") & filters.user(OWNER_ID))
+async def generate_redeem_code(client, message):
+    if len(message.command) < 2:
+        await message.reply("Usage: /generateredeem <count>")
+        return
+
+    try:
+        count = int(message.command[1])
+        if count <= 0:
+            await message.reply("Count must be a positive integer.")
+            return
+    except ValueError:
+        await message.reply("Invalid count. Please provide a valid number.")
+        return
+
+    # Generate random redeem codes
+    alphabet = string.ascii_uppercase + string.digits
+    redeem_codes = []
+
+    for _ in range(count):
+        code = ''.join(secrets.choice(alphabet) for _ in range(10))
+        redeem_codes.append(code)
+        redeem_codes_collection.insert_one({
+            'code': code,
+            'used': False,
+            'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        })
+
+    await message.reply(f"Generated {count} redeem codes:\n\n" + "\n".join(redeem_codes))
+
+# Command to list all redeem codes (admin only)
+@bot.on_message(filters.command("listredeem") & filters.user(OWNER_ID))
+async def list_redeem_codes(client, message):
+    unused_codes = list(redeem_codes_collection.find({'used': False}))
+    
+    if not unused_codes:
+        await message.reply("No unused redeem codes available.")
+        return
+
+    response = "**Unused Redeem Codes:**\n\n"
+    for code in unused_codes:
+        response += f"🔑 Code: `{code['code']}`\n"
+        response += f"🕒 Generated At: {code['generated_at']}\n\n"
+
+    await message.reply(response)
+
+# Command for users to redeem a code
+@bot.on_message(filters.command("redeem"))
+async def redeem_code(client, message):
+    user_id = str(message.from_user.id)
+    
+    if len(message.command) < 2:
+        await message.reply("Usage: /redeem <code>")
+        return
+
+    code = message.command[1].upper()
+    
+    # Check if code exists and is unused
+    redeem_code_data = redeem_codes_collection.find_one({'code': code, 'used': False})
+    
+    if not redeem_code_data:
+        await message.reply("❌ Invalid or already used redeem code.")
+        return
+    
+    # Mark code as used
+    redeem_codes_collection.update_one(
+        {'code': code},
+        {'$set': {'used': True, 'used_by': user_id, 'used_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')}}
+    )
+    
+    # Approve user for 30 minutes
+    expiry_date = datetime.now() + timedelta(minutes=30)
+    approved_users = load_approved_users()
+    approved_users[user_id] = {'expiry': expiry_date.strftime('%Y-%m-%d %H:%M:%S')}
+    save_approved_users(approved_users)
+    
+    await message.reply(f"✅ Redeem code successfully applied! You can use the bot for 30 minutes.")
+
 # Callback query handler for join verification
 @bot.on_callback_query(filters.regex("^check_joined$"))
 async def check_joined_callback(client, callback_query):
@@ -363,7 +445,7 @@ async def check_user_approval(client, message):
 
     # Allow approved users to use all commands except /broadcast, /approve, and /unapprove
     if is_user_approved(user_id, approved_users):
-        if message.command and message.command[0] in ["broadcast", "approve", "unapprove"]:
+        if message.command and message.command[0] in ["broadcast", "approve", "unapprove", "generateredeem", "listredeem"]:
             await message.reply("This command is restricted to the owner only.")
         else:
             await message.continue_propagation()
