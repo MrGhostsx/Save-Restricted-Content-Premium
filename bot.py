@@ -14,21 +14,21 @@ import string
 # MongoDB Setup
 mongo_client = MongoClient(MONGO_URL)
 db = mongo_client['bot_database']
-approved_users = db['approved_users']
-all_users = db['all_users']
-verified_users = db['verified_users']  # Stores users who joined channel/group
-redeem_codes = db['redeem_codes']
+approved_users_collection = db['approved_users']
+all_users_collection = db['all_users']
+verified_users_collection = db['verified_users']  # Stores users who joined channel/group
+redeem_codes_collection = db['redeem_codes']
 
 # Load approved users (remove expired)
 def load_approved_users():
     current_time = datetime.now()
     active_users = {}
-    for user in approved_users.find():
+    for user in approved_users_collection.find():
         expiry = datetime.strptime(user['expiry'], '%Y-%m-%d %H:%M:%S')
         if current_time < expiry:
-            active_users[user['user_id'] = {'expiry': user['expiry']}
+            active_users[user['user_id']] = {'expiry': user['expiry']}
         else:
-            approved_users.delete_one({'user_id': user['user_id']})
+            approved_users_collection.delete_one({'user_id': user['user_id']})
     return active_users
 
 # Verify user joined channel/group
@@ -51,10 +51,10 @@ async def check_membership(client, user_id):
 def join_buttons():
     buttons = []
     if CHANNEL_USERNAME:
-        buttons.append([InlineKeyboardButton("👻 Join Channel", url=f"https://t.me/{CHANNEL_USERNAME}")])
+        buttons.append([InlineKeyboardButton("📢 Join Channel", url=f"https://t.me/{CHANNEL_USERNAME}")])
     if GROUP_USERNAME:
-        buttons.append([InlineKeyboardButton("👻 Join Channel", url=f"https://t.me/{GROUP_USERNAME}")])
-    buttons.append([InlineKeyboardButton("☘️ Check Again", callback_data="verify_joined")])
+        buttons.append([InlineKeyboardButton("💬 Join Group", url=f"https://t.me/{GROUP_USERNAME}")])
+    buttons.append([InlineKeyboardButton("✅ I've Joined", callback_data="verify_joined")])
     return InlineKeyboardMarkup(buttons)
 
 # Bot Class
@@ -83,7 +83,7 @@ bot = Bot()
 async def verify_joined(client, callback):
     user_id = callback.from_user.id
     if await check_membership(client, user_id):
-        verified_users.insert_one({'user_id': user_id})
+        verified_users_collection.insert_one({'user_id': user_id})
         await callback.answer("✅ Verified! Now you can use the bot.", show_alert=True)
         await callback.message.delete()
     else:
@@ -93,13 +93,13 @@ async def verify_joined(client, callback):
 @bot.on_message(filters.private & ~filters.user(OWNER_ID))
 async def force_join_check(client, message):
     user_id = message.from_user.id
-    if not verified_users.find_one({'user_id': user_id}):
+    if not verified_users_collection.find_one({'user_id': user_id}):
         await message.reply(
             "**⚠️ Access Denied!**\nJoin our channel & group to use me:",
             reply_markup=join_buttons()
         )
     elif not await check_membership(client, user_id):
-        verified_users.delete_one({'user_id': user_id})
+        verified_users_collection.delete_one({'user_id': user_id})
         await message.reply(
             "**🚫 Removed Access!**\nYou left our channel/group. Rejoin to continue:",
             reply_markup=join_buttons()
