@@ -51,10 +51,10 @@ async def check_membership(client, user_id):
 def join_buttons():
     buttons = []
     if CHANNEL_USERNAME:
-        buttons.append([InlineKeyboardButton("📢 Join Channel", url=f"https://t.me/{CHANNEL_USERNAME}")])
+        buttons.append([InlineKeyboardButton("👻 Join Channel", url=f"https://t.me/{CHANNEL_USERNAME}")])
     if GROUP_USERNAME:
-        buttons.append([InlineKeyboardButton("💬 Join Group", url=f"https://t.me/{GROUP_USERNAME}")])
-    buttons.append([InlineKeyboardButton("✅ I've Joined", callback_data="verify_joined")])
+        buttons.append([InlineKeyboardButton("👻 Join Channel", url=f"https://t.me/{GROUP_USERNAME}")])
+    buttons.append([InlineKeyboardButton("☘️ Check Again", callback_data="verify_joined")])
     return InlineKeyboardMarkup(buttons)
 
 # Bot Class
