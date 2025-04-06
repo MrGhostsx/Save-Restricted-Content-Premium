@@ -18,8 +18,8 @@ ADMINS = int(os.environ.get("ADMINS", "1234569875"))
 OWNER_ID = int(os.environ.get("OWNER_ID", "1234569875"))
 
 # New: Channel & Group Requirements (Optional)
-CHANNEL_USERNAME = os.getenv("CHANNEL_USERNAME")  # Can be None
-GROUP_USERNAME = os.getenv("GROUP_USERNAME")      # Can be None
+FORCE_CHANNEL1 = os.getenv("FORCE_CHANNEL1")  # Can be None
+FORCE_CHANNEL2 = os.getenv("FORCE_CHANNEL2")      # Can be None
 
 # Your Mongodb Database Url
 # Warning - Give Db uri in deploy server environment variable, don't give in repo.
