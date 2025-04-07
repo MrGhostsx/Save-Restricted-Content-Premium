@@ -214,10 +214,10 @@ async def my_plan(client, message):
         if time_left.total_seconds() > 0:
             plan_details = (
                 f"**Your Plan Details:**\n"
-                f"👤 Username: {message.from_user.username}\n"
+                f"👤 Username: `{message.from_user.username}`\n"
                 f"🤖 Bot Name: @SmartEdith_Bot\n"
-                f"⏳ Plan Expiry: {expiry_date.strftime('%Y-%m-%d %H:%M:%S')}\n"
-                f"⏰ Time Left: {str(time_left).split('.')[0]}"
+                f"⏳ Plan Expiry: `{expiry_date.strftime('%Y-%m-%d %H:%M:%S')}`\n"
+                f"⏰ Time Left: `{str(time_left).split('.')[0]}`"
             )
             await message.reply(plan_details)
         else:
@@ -238,11 +238,11 @@ async def list_approved_users(client, message):
     for user_id, details in approved_users.items():
         expiry_date = details['expiry']
         remaining_days = (datetime.strptime(expiry_date, '%Y-%m-%d %H:%M:%S') - datetime.now()).days
-        response += f"👤 User ID: {user_id}\n"
-        response += f"⏳ Expiry Date: {expiry_date}\n"
-        response += f"⏰ Remaining Days: {remaining_days}\n\n"
+        response += f"👤 User ID: `{user_id}`\n"
+        response += f"⏳ Expiry Date: `{expiry_date}`\n"
+        response += f"⏰ Remaining Days: `{remaining_days}`\n\n"
 
-    response += f"\n**Total Approved Users:** {len(approved_users)}"
+    response += f"\n**Total Approved Users:** `{len(approved_users)}`"
     await message.reply(response)
 
 # Command to display plan information
@@ -264,6 +264,17 @@ async def plan_info(client, message):
         "Contact admin to buy a plan: @Tech_Shreyansh29"
     )
     await message.reply(plan_table)
+    
+    # Command to display terms and conditions
+@bot.on_message(filters.command("terms"))
+async def terms_and_conditions(client, message):
+    terms = (
+        "> 📜 **Terms and Conditions** 📜\n\n"
+        "✨ We are not responsible for user deeds, and we do not promote copyrighted content. If any user engages in such activities, it is solely their responsibility.\n"
+        "✨ Upon purchase, we do not guarantee the uptime, downtime, or the validity of the plan. __Authorization and banning of users are at our discretion; we reserve the right to ban or authorize users at any time.__\n"
+        "✨ Payment to us **__does not guarantee__** authorization for the batch command. All decisions regarding authorization are made at our discretion and mood.\n"
+    )
+    await message.reply(terms)
 
 # Broadcast command (admin only)
 @bot.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
@@ -341,7 +352,7 @@ async def list_redeem_codes(client, message):
     response = "**Unused Redeem Codes:**\n\n"
     for code in unused_codes:
         response += f"🔑 Code: `{code['code']}`\n"
-        response += f"🕒 Generated At: {code['generated_at']}\n\n"
+        response += f"🕒 Generated At: `{code['generated_at']}`\n\n"
 
     await message.reply(response)
 
