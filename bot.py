@@ -343,7 +343,7 @@ async def generate_redeem_code(client, message):
 # Command to list all redeem codes (admin only)
 @bot.on_message(filters.command("listredeem") & filters.user(OWNER_ID))
 async def list_redeem_codes(client, message):
-    unused_codes = list(redeem_codes_collection.find({'used': False}))
+    unused_codes = list(redeem_codes_collection.find({'used_by': None}))  # Changed from 'used': False
     
     if not unused_codes:
         await message.reply("No unused redeem codes available.")
