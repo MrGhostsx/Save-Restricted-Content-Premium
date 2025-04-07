@@ -309,7 +309,7 @@ async def broadcast(client, message):
         f"❌ Failed: {fail_count}"
     )
 
-# Command to generate redeem codes (admin only)
+# Command to generate multiple redeem codes (admin only)
 @bot.on_message(filters.command("generateredeem") & filters.user(OWNER_ID))
 async def generate_redeem_code(client, message):
     if len(message.command) < 2:
@@ -325,20 +325,20 @@ async def generate_redeem_code(client, message):
         await message.reply("Invalid count. Please provide a valid number.")
         return
 
-    # Generate random redeem codes
-    alphabet = string.ascii_uppercase + string.digits
+    # Generate multiple redeem codes
+    alphabet = string.ascii_letters + string.digits
     redeem_codes = []
 
     for _ in range(count):
-        code = ''.join(secrets.choice(alphabet) for _ in range(10))
-        redeem_codes.append(code)
+        redeem_code = ''.join(secrets.choice(alphabet) for i in range(10))
+        redeem_codes.append(redeem_code)
         redeem_codes_collection.insert_one({
-            'code': code,
-            'used': False,
+            'code': redeem_code,
+            'used_by': None,
             'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         })
 
-    await message.reply(f"Generated {count} redeem codes:\n\n" + "\n".join(redeem_codes))
+    await message.reply(f"Generated `{count}` redeem codes:\n\n" + "\n".join([f"`{code}`" for code in redeem_codes]))
 
 # Command to list all redeem codes (admin only)
 @bot.on_message(filters.command("listredeem") & filters.user(OWNER_ID))
