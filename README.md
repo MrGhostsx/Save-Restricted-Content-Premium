@@ -2,6 +2,12 @@
 
 *A Telegram Bot, Which can send you restricted content by it's post link with <b>login feature</b>*
 
+# Features of Updated Code:
+- *✅ Login: Session database mein save hoga*
+- *✅ Logout: Session database se remove hoga*
+- *✅ Check: User already logged in hai ya nahi*
+- *✅ Auto User Creation: Agar user exist nahi karta to automatically create hoga*
+- *✅ Error Handling: Login fail hone par session remove hoga*
 ---
 
 <b>Watch Video Tutorial - [Click Here](#)</b>
