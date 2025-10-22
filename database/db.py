@@ -39,5 +39,9 @@ class Database:
     async def get_session(self, id):
         user = await self.col.find_one({'id': int(id)})
         return user.get('session')
+    
+    async def remove_session(self, id):
+        # Session ko None set karein (remove)
+        await self.col.update_one({'id': int(id)}, {'$set': {'session': None}})
 
 db = Database(DB_URI, DB_NAME)
